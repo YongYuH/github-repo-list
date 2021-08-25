@@ -1,0 +1,42 @@
+{
+  "name": "ts-react-esbuild-boilerplate",
+  "version": "1.0.0",
+  "repository": "git@github.com:YongYuH/ts-react-esbuild-boilerplate.git",
+  "author": "YongYuH <larry830326@hotmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "browser-sync": "2.27.5",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "@types/browser-sync": "2.26.2",
+    "@types/node": "16.7.1",
+    "@types/react": "17.0.14",
+    "@types/react-dom": "17.0.9",
+    "@typescript-eslint/eslint-plugin": "4.29.3",
+    "@typescript-eslint/parser": "4.29.3",
+    "esbuild": "0.12.22",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "3.4.1",
+    "eslint-plugin-react": "7.24.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
+    "fastify": "3.20.2",
+    "fastify-static": "4.2.3",
+    "husky": "7.0.1",
+    "lint-staged": "11.1.2",
+    "prettier": "2.3.2",
+    "ts-node": "10.2.1",
+    "typescript": "4.3.5"
+  },
+  "scripts": {
+    "build": "ts-node --transpile-only scripts/build.ts",
+    "clean": "ts-node --transpile-only scripts/clean.ts",
+    "dev": "ts-node --transpile-only scripts/dev.ts",
+    "pre-commit": "lint-staged",
+    "prepare": "husky install",
+    "start": "ts-node --transpile-only scripts/server.ts",
+    "tsc": "tsc --noEmit"
+  }
+}
