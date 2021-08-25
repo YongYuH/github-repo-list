@@ -1,7 +1,7 @@
 {
-  "name": "ts-react-esbuild-boilerplate",
+  "name": "github-repo-list",
   "version": "1.0.0",
-  "repository": "git@github.com:YongYuH/ts-react-esbuild-boilerplate.git",
+  "repository": "git@github.com:YongYuH/github-repo-list.git",
   "author": "YongYuH <larry830326@hotmail.com>",
   "license": "MIT",
   "dependencies": {
