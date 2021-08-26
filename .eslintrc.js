@@ -27,4 +27,5 @@ module.exports = {
       version: '17.0.2',
     },
   },
+  ignorePatterns: ['schema.d.ts'],
 }
