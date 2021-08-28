@@ -10,6 +10,7 @@ import type { SearchPanelProps } from './SearchPanel'
 import SearchPanel from './SearchPanel'
 import type { Data } from './useSearchRepositories'
 import { useSearchRepositories } from './useSearchRepositories'
+import type { SearchRepositoryActionType } from './useSearchRepositories/useFetchUrl/searchRepositoriesReducer'
 
 const SearchResultListWrapper = styled.div``
 const TotalCountSkeletonWrapper = styled.div`
@@ -25,18 +26,34 @@ const CustomizedSkeleton = styled(Skeleton)`
   }
 `
 const InterSectionWrapper = styled.div``
+const InterSectionPlaceholder = styled.div`
+  height: 80px;
+`
+
+const defaultPerPage = 30
 
 const App = () => {
   const intersectionRef = useRef()
   const intersection = useIntersection(intersectionRef, {
-    rootMargin: '0px',
+    rootMargin: '0px 0px 80px 0px',
     threshold: 0,
   })
 
-  const { actionType, dispatch, isLoading, repoItemList, totalCount } = useSearchRepositories({
+  const {
+    dispatch,
+    isLoading,
+    repoItemList,
+    page,
+    perPage,
+    searchRepositoryActionType,
+    totalCount,
+  } = useSearchRepositories({
     page: 1,
+    perPage: defaultPerPage,
     q: undefined,
   })
+
+  const hasNextPage = page <= Math.floor(totalCount / perPage)
 
   const handleQueryChange: SearchPanelProps['handleQueryChange'] = (e) => {
     const updatedQuery = e.target.value
@@ -51,76 +68,110 @@ const App = () => {
   useEffect(() => {
     /**
      * 初始化的時候 intersectionRatio 為 1
-     * 這編的判斷條件是從未接觸到接觸，所以要排除 intersectionRatio 為 1 的狀況
+     * 觸發 query 的條件是從未接觸到接觸
+     * 所以要排除 intersectionRatio 為 1 的狀況
      */
-    if (intersection && intersection.intersectionRatio < 1 && repoItemList.length > 0) {
+    if (intersection && intersection.intersectionRatio < 1) {
       if (intersection.isIntersecting) {
-        console.log(intersection)
-        dispatch({
-          type: 'nextPage',
-        })
+        match(hasNextPage)
+          .with(false, () => {
+            dispatch({
+              type: 'keep',
+            })
+          })
+          .with(true, () => {
+            dispatch({
+              type: 'nextPage',
+            })
+          })
+          .exhaustive()
       }
     }
-  }, [intersection?.isIntersecting, repoItemList.length])
-
-  const isUpdatingQ = actionType === 'updateQ' && isLoading ? true : false
-  const isFetchingMore = actionType === 'nextPage' && isLoading ? true : false
+  }, [intersection?.isIntersecting, hasNextPage])
 
   return (
     <>
       <SearchPanel handleQueryChange={handleQueryChange} />
       <SearchResultListWrapper>
         <TotalCountSkeletonWrapper>
-          {match<{ isUpdatingQ: boolean; repoItemList: Data['items'] }, JSX.Element>({
-            isUpdatingQ,
+          {match<
+            {
+              isLoading: boolean
+              repoItemList: Data['items']
+            },
+            JSX.Element
+          >({
+            isLoading,
             repoItemList,
           })
-            .with({ isUpdatingQ: false, repoItemList: [] }, () => <>0 repository results</>)
-            .with({ isUpdatingQ: true, repoItemList: __ }, () => <CustomizedSkeleton count={1} />)
-            .with({ isUpdatingQ: false, repoItemList: __ }, () => (
+            .with({ isLoading: true, repoItemList: __ }, () => <CustomizedSkeleton count={1} />)
+            .with({ isLoading: false, repoItemList: [] }, () => <>0 repository results</>)
+            .with({ isLoading: false, repoItemList: __ }, () => (
               <>{format(',')(totalCount)} repository results</>
             ))
             .exhaustive()}
         </TotalCountSkeletonWrapper>
-        {match<{ isUpdatingQ: boolean; repoItemList: Data['items'] }, JSX.Element>({
-          isUpdatingQ,
+        {match<
+          {
+            isLoading: boolean
+            repoItemList: Data['items']
+            searchRepositoryActionType: SearchRepositoryActionType
+          },
+          JSX.Element
+        >({
+          isLoading,
           repoItemList,
+          searchRepositoryActionType,
         })
-          .with({ isUpdatingQ: true, repoItemList: __ }, () => (
+          .with(
+            { isLoading: true, repoItemList: __, searchRepositoryActionType: 'updateQ' },
+            () => (
+              <SkeletonWrapper>
+                <CustomizedSkeleton count={3} />
+              </SkeletonWrapper>
+            )
+          )
+          .with({ isLoading: true, repoItemList: [], searchRepositoryActionType: __ }, () => (
             <SkeletonWrapper>
               <CustomizedSkeleton count={3} />
             </SkeletonWrapper>
           ))
-          .with({ isUpdatingQ: false, repoItemList: __ }, () => (
+          .otherwise(() => (
             <>
               {repoItemList.map((item) => (
                 <Card
                   key={item.id}
                   description={item.description}
+                  htmlUrl={item.html_url}
                   language={item.language}
                   license={item.license}
                   name={item.name}
                   owner={item.owner}
                   stargazers_count={item.stargazers_count}
                   updated_at={item.updated_at}
-                  url={item.url}
                 />
               ))}
             </>
-          ))
-          .exhaustive()}
+          ))}
         <InterSectionWrapper ref={intersectionRef}>
-          {match<{ isFetchingMore: boolean; repoItemList: Data['items'] }, JSX.Element>({
-            isFetchingMore,
+          {match<
+            {
+              isLoading: boolean
+              repoItemList: Data['items']
+            },
+            JSX.Element
+          >({
+            isLoading,
             repoItemList,
           })
-            .with({ isFetchingMore: false, repoItemList: __ }, () => <SkeletonWrapper />)
-            .with({ isFetchingMore: true, repoItemList: __ }, () => (
+            .with({ isLoading: true, repoItemList: __ }, () => (
               <SkeletonWrapper>
                 <CustomizedSkeleton count={3} />
               </SkeletonWrapper>
             ))
-            .exhaustive()}
+            .otherwise(() => (
+              <InterSectionPlaceholder />
+            ))}
         </InterSectionWrapper>
       </SearchResultListWrapper>
     </>

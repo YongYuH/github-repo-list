@@ -1,34 +1,13 @@
 import fetch from 'isomorphic-unfetch'
+import { isEmpty, isNil } from 'rambda'
 import { useEffect, useReducer } from 'react'
 import useSWR from 'swr'
 import type { Fetcher } from 'swr/dist/types'
+import { __, match } from 'ts-pattern'
 
 import type { paths } from '../../../schema'
-import { useDebounce } from '../../hooks/useDebounce'
-import { isEmptyOrNil } from '../../utils/isEmptyOrNil'
 import { repoItemListReducer } from './repoItemListReducer'
-import { searchRepositoryReducer } from './searchRepositoriesReducer'
-
-const apiUrl = 'https://api.github.com'
-const defaultPerPage = 30
-
-interface GetFetchUrlArgs {
-  page: Query['page']
-  perPage?: Query['per_page']
-  q: Query['q']
-}
-
-type GetFetchUrl = (args: GetFetchUrlArgs) => string
-
-const getFetchUrl: GetFetchUrl = (args) => {
-  const { page, perPage = defaultPerPage, q } = args
-  /** do not trigger query when query string is empty string or undefined */
-  const fetchUrl = isEmptyOrNil(q)
-    ? null
-    : `${apiUrl}/search/repositories?q=${q}&page=${page}&per_page=${perPage}`
-
-  return fetchUrl
-}
+import { useFetchUrl } from './useFetchUrl'
 
 export type Query = paths['/search/repositories']['get']['parameters']['query']
 export type Data =
@@ -41,55 +20,80 @@ const apiFetcher: Fetcher<Data> = async (...args) => {
 }
 
 interface UseSearchRepositoriesArgs {
-  page?: Query['page']
-  q?: Query['q']
+  page: Query['page']
+  perPage: Query['per_page']
+  q: Query['q']
 }
 
 const useSearchRepositories = (args: UseSearchRepositoriesArgs) => {
-  const { page, q } = args
+  const { page, perPage, q } = args
 
-  const [{ repoItemList, totalCount }, repoItemListDispatch] = useReducer(repoItemListReducer, {
-    repoItemList: [],
-    totalCount: 0,
-  })
-
-  const [queryParameters, dispatch] = useReducer(searchRepositoryReducer, {
+  const { dispatch, fetchUrl, queryParameters, searchRepositoryActionType } = useFetchUrl({
     page,
+    perPage,
     q,
-    updateType: 'initial',
   })
-
-  const fetchUrl = useDebounce(
-    () =>
-      getFetchUrl({
-        page: queryParameters.page,
-        q: queryParameters.q,
-      }),
-    250
-  )
 
   const { data, isValidating } = useSWR(fetchUrl, apiFetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   })
 
+  const [{ repoItemList, totalCount }, repoItemListDispatch] = useReducer(repoItemListReducer, {
+    repoItemList: [],
+    totalCount: 0,
+  })
+
   useEffect(() => {
-    if (data?.items.length > 0 && !isValidating) {
-      repoItemListDispatch({
-        payload: {
-          fetchedItemList: data.items,
-          totalCount: data.total_count,
-        },
-        type: queryParameters.updateType,
+    match({ data, isValidating, searchRepositoryActionType })
+      .with(
+        { searchRepositoryActionType: 'updateQ' },
+        ({ data, isValidating }) => isValidating === false && !isNil(data) && !isEmpty(data.items),
+        () => {
+          repoItemListDispatch({
+            payload: {
+              fetchedItemList: data.items,
+              totalCount: data.total_count,
+            },
+            type: 'reset',
+          })
+        }
+      )
+      .with(
+        { data: __, isValidating: __, searchRepositoryActionType: 'nextPage' },
+        ({ data, isValidating }) => isValidating === false && !isNil(data) && !isEmpty(data.items),
+        () => {
+          repoItemListDispatch({
+            payload: {
+              fetchedItemList: data.items,
+              totalCount: data.total_count,
+            },
+            type: 'append',
+          })
+        }
+      )
+      .with(
+        { data: __, isValidating: __, searchRepositoryActionType: __ },
+        ({ data, isValidating }) => isValidating === false && !isNil(data) && isEmpty(data.items),
+        () => {
+          repoItemListDispatch({
+            type: 'keep',
+          })
+        }
+      )
+      .otherwise(() => {
+        return undefined
       })
-    }
-  }, [data?.items.length, isValidating])
+  }, [!isNil(data), isValidating])
 
   return {
-    actionType: queryParameters.updateType,
     dispatch,
-    isLoading: isValidating,
+    isLoading: isValidating === true,
+    page: queryParameters.page,
+    perPage: queryParameters.perPage,
+    q: queryParameters.q,
     repoItemList,
+    searchRepositoryActionType,
     totalCount,
   }
 }

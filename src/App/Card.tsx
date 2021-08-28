@@ -19,6 +19,9 @@ const Link = styled.a`
 const IconWrapper = styled.div`
   margin-top: 4px;
 `
+const CustomizedGrid = styled(Grid)`
+  word-break: break-all;
+`
 const Description = styled.div`
   margin: 8px 0;
 `
@@ -35,17 +38,18 @@ type Item = Data['items'][number]
 
 interface CardProps {
   description: Item['description']
+  htmlUrl: Item['html_url']
   language: Item['language']
   license?: Item['license']
   name: Item['name']
   owner: Item['owner']
   stargazers_count: Item['stargazers_count']
   updated_at: Item['updated_at']
-  url: Item['url']
 }
 
 const Card = (props: CardProps) => {
-  const { description, language, license, name, owner, stargazers_count, updated_at, url } = props
+  const { description, htmlUrl, language, license, name, owner, stargazers_count, updated_at } =
+    props
 
   return (
     <Row>
@@ -53,8 +57,8 @@ const Card = (props: CardProps) => {
         <IconWrapper>
           <GoRepo />
         </IconWrapper>
-        <Grid>
-          <Link href={url}>
+        <CustomizedGrid>
+          <Link href={htmlUrl} target="_blank">
             {owner.login}/{name}
           </Link>
           <Description>{emoji.emojify(description)}</Description>
@@ -69,7 +73,7 @@ const Card = (props: CardProps) => {
             {license && <Label>{license.name}</Label>}
             <Label>Updated {formatDistanceToNowStrict(new Date(updated_at))} ago</Label>
           </CustomizedFlex>
-        </Grid>
+        </CustomizedGrid>
       </Grid>
     </Row>
   )
