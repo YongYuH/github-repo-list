@@ -1,3 +1,4 @@
+import fetch from 'isomorphic-unfetch'
 import { useEffect, useReducer } from 'react'
 import useSWR from 'swr'
 import type { Fetcher } from 'swr/dist/types'
