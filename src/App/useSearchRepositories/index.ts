@@ -74,7 +74,7 @@ const useSearchRepositories = (args: UseSearchRepositoriesArgs) => {
   })
 
   useEffect(() => {
-    if (data && !isValidating) {
+    if (data?.items.length > 0 && !isValidating) {
       repoItemListDispatch({
         payload: {
           fetchedItemList: data.items,
@@ -83,7 +83,7 @@ const useSearchRepositories = (args: UseSearchRepositoriesArgs) => {
         type: queryParameters.updateType,
       })
     }
-  }, [isValidating])
+  }, [data?.items.length, isValidating])
 
   return {
     actionType: queryParameters.updateType,
