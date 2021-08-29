@@ -66,26 +66,19 @@ const App = () => {
   }
 
   useEffect(() => {
-    /**
-     * 初始化的時候 intersectionRatio 為 1
-     * 觸發 query 的條件是從未接觸到接觸
-     * 所以要排除 intersectionRatio 為 1 的狀況
-     */
-    if (intersection && intersection.intersectionRatio < 1) {
-      if (intersection.isIntersecting) {
-        match(hasNextPage)
-          .with(false, () => {
-            dispatch({
-              type: 'keep',
-            })
+    if (intersection?.isIntersecting) {
+      match(hasNextPage)
+        .with(false, () => {
+          dispatch({
+            type: 'keep',
           })
-          .with(true, () => {
-            dispatch({
-              type: 'nextPage',
-            })
+        })
+        .with(true, () => {
+          dispatch({
+            type: 'nextPage',
           })
-          .exhaustive()
-      }
+        })
+        .exhaustive()
     }
   }, [intersection?.isIntersecting, hasNextPage])
 
