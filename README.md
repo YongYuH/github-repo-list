@@ -12,13 +12,23 @@ or
 ```bash
 npm install
 ```
-3. run dev server
+3. start development server
 ```bash
 yarn dev
 ```
 or
 ```bash
 npm run dev
+```
+4. build and start production server
+```bash
+yarn build
+yarn start
+```
+or
+```bash
+npm run build
+npm start
 ```
 
 # UI flow
