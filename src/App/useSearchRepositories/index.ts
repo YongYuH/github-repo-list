@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import type { Fetcher } from 'swr/dist/types'
 import { __, match } from 'ts-pattern'
 
-import type { paths } from '../../../schema'
+import type { paths } from '../../../types/generated-schema'
 import { repoItemListReducer } from './repoItemListReducer'
 import { useFetchUrl } from './useFetchUrl'
 
