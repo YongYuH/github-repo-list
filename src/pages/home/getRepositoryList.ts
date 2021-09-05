@@ -18,7 +18,7 @@ const searchApi = createApi({
   reducerPath: 'searchApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://api.github.com', fetchFn: isomorphicUnFetch }),
   endpoints: (builder) => ({
-    getRepositoryListByPage: builder.query<RepositoryListResponse, QueryPayload>({
+    getRepositoryList: builder.query<RepositoryListResponse, QueryPayload>({
       query: (payload) => {
         const { page, perPage, q } = payload
         return `search/repositories?q=${q}&page=${page}&per_page=${perPage}`
@@ -51,4 +51,4 @@ export { searchApi }
 
 export type { RepositoryListResponse }
 
-export const { useGetRepositoryListByPageQuery } = searchApi
+export const { useGetRepositoryListQuery } = searchApi

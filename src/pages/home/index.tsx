@@ -11,7 +11,7 @@ import type { RootState } from '../../store'
 import { isEmptyOrNil } from '../../utils/isEmptyOrNil'
 import type { Repository } from './cachedResultSlice'
 import Card from './Card'
-import { useGetRepositoryListByPageQuery } from './getRepositoryList'
+import { useGetRepositoryListQuery } from './getRepositoryList'
 import SearchPanel from './SearchPanel'
 import { nextPage } from './searchPayloadSlice'
 
@@ -43,7 +43,7 @@ const RepositorySearch = () => {
   const searchPayload = useAppSelector((state: RootState) => state.searchPayload)
   const { isLastActionUpdatingQ, page, perPage, q } = searchPayload
 
-  const { isFetching } = useGetRepositoryListByPageQuery(
+  const { isFetching } = useGetRepositoryListQuery(
     {
       isLastActionUpdatingQ,
       page,
