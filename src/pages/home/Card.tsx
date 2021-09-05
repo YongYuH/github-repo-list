@@ -5,9 +5,9 @@ import React from 'react'
 import { GoRepo, GoStar } from 'react-icons/go'
 import styled from 'styled-components'
 
-import Flex from '../components/Flex'
-import Grid from '../components/Grid'
-import type { Data } from './useSearchRepositories'
+import Flex from '../../components/Flex'
+import Grid from '../../components/Grid'
+import type { RepositoryListResponse } from './getRepositoryList'
 
 const Row = styled.div`
   padding: 24px 0;
@@ -34,7 +34,7 @@ const Label = styled.div`
   font-size: 12px;
 `
 
-type Item = Data['items'][number]
+type Item = RepositoryListResponse['items'][number]
 
 interface CardProps {
   description: Item['description']
