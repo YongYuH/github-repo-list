@@ -11,7 +11,7 @@ import type { RootState } from '../../store'
 import { isEmptyOrNil } from '../../utils/isEmptyOrNil'
 import type { Repository } from './cachedResultSlice'
 import Card from './Card'
-import { useGetRepositoryListByPageQuery } from './getRepositoryList'
+import { useGetRepositoryListQuery } from './getRepositoryList'
 import SearchPanel from './SearchPanel'
 import { nextPage } from './searchPayloadSlice'
 
@@ -34,12 +34,6 @@ const InterSectionPlaceholder = styled.div`
 `
 
 const RepositorySearch = () => {
-  const intersectionRef = useRef()
-  const intersection = useIntersection(intersectionRef, {
-    rootMargin: '0px 0px 80px 0px',
-    threshold: 0,
-  })
-
   const dispatch = useAppDispatch()
 
   const cachedResult = useAppSelector((state: RootState) => state.cachedResult)
@@ -49,9 +43,7 @@ const RepositorySearch = () => {
   const searchPayload = useAppSelector((state: RootState) => state.searchPayload)
   const { isLastActionUpdatingQ, page, perPage, q } = searchPayload
 
-  const hasNextPage = page <= Math.floor(totalCount / searchPayload.perPage)
-
-  const { isFetching } = useGetRepositoryListByPageQuery(
+  const { isFetching } = useGetRepositoryListQuery(
     {
       isLastActionUpdatingQ,
       page,
@@ -63,8 +55,17 @@ const RepositorySearch = () => {
     }
   )
 
-  /** 捲動至頁面下方時 */
+  const hasNextPage = page <= Math.floor(totalCount / searchPayload.perPage)
+
+  /** 可視區塊相關 */
+  const intersectionRef = useRef()
+  const intersection = useIntersection(intersectionRef, {
+    rootMargin: '0px 0px 80px 0px',
+    threshold: 0,
+  })
+
   useEffect(() => {
+    /** intersectionRef 進入可視區塊時 */
     if (intersection?.isIntersecting && hasNextPage) {
       dispatch(nextPage())
     }

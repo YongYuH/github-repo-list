@@ -31,6 +31,14 @@ npm run build
 npm start
 ```
 
+# Flow Chart
+* UI
+![UI](images/UI.png)
+* input change
+![input change](images/inputChange.png)
+* intersection change
+![intersection change](images/intersectionChange.png)
+
 # Description
 ### Folder structure
 * Define components, hooks, and util functions in a folder as a module.
