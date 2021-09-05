@@ -31,9 +31,6 @@ npm run build
 npm start
 ```
 
-# UI flow
-![flow](images/flow.svg)
-
 # Description
 ### Folder structure
 * Define components, hooks, and util functions in a folder as a module.
