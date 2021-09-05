@@ -3,7 +3,6 @@ import isomorphicUnFetch from 'isomorphic-unfetch'
 
 import type { paths } from '../../../types/generated-schema'
 import { appendRespositoryList, replaceRespositoryList } from './cachedResultSlice'
-import { resetIsLastActionUpdatingQ } from './searchPayloadSlice'
 
 interface QueryPayload {
   isLastActionUpdatingQ: boolean
@@ -43,7 +42,6 @@ const searchApi = createApi({
             })
           )
         }
-        dispatch(resetIsLastActionUpdatingQ())
       },
     }),
   }),

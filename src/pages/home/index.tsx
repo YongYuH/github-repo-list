@@ -78,34 +78,24 @@ const RepositorySearch = () => {
           {match<
             {
               isFetching: boolean
-              respositoryList: Repository[]
             },
             JSX.Element
           >({
             isFetching,
-            respositoryList,
           })
-            .with({ isFetching: false, respositoryList: [] }, () => null)
             .with({ isFetching: true }, () => <CustomizedSkeleton count={1} />)
             .with({ isFetching: false }, () => <>{format(',')(totalCount)} repository results</>)
             .exhaustive()}
         </TotalCountSkeletonWrapper>
         {match<
           {
-            isLastActionUpdatingQ: boolean
             respositoryList: Repository[]
           },
           JSX.Element
         >({
-          isLastActionUpdatingQ,
           respositoryList,
         })
           .with({ respositoryList: [] }, () => null)
-          .with({ isLastActionUpdatingQ: true }, () => (
-            <SkeletonWrapper>
-              <CustomizedSkeleton count={3} />
-            </SkeletonWrapper>
-          ))
           .otherwise(() => (
             <>
               {respositoryList.map((item) => (

@@ -35,12 +35,9 @@ const searchPayloadSlice = createSlice({
       state.page = 1
       state.q = action.payload.q
     },
-    resetIsLastActionUpdatingQ: (state) => {
-      state.isLastActionUpdatingQ = false
-    },
   },
 })
 
 export { searchPayloadSlice }
-export const { nextPage, resetIsLastActionUpdatingQ, updateQuery } = searchPayloadSlice.actions
+export const { nextPage, updateQuery } = searchPayloadSlice.actions
 export default searchPayloadSlice.reducer
